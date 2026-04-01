@@ -1,3 +1,61 @@
+// // import express from "express";
+// // import "dotenv/config";
+// // import cors from "cors";
+// // import http from "http";
+// // import { connectDB } from "./lib/db.js";
+// // import userRouter from "./routes/userRoutes.js";
+// // import messageRouter from "./routes/messageRoutes.js";
+// // import { Server } from "socket.io";
+
+// // // Create Express app and HTTP server
+// // const app = express();
+// // const server = http.createServer(app);
+
+// // // Initialize Socket.io server
+// // export const io = new Server(server, {
+// //     cors: { origin: "*" }
+// // });
+
+// // // Store online users { userId: socket }
+// // export const userSocketMap = {};
+
+// // // Socket.io connection handler
+// // io.on("connection", (socket) => {
+// //     const userId = socket.handshake.query.userId;
+// //     console.log("User connected:", userId);
+
+// //     if (userId) userSocketMap[userId] = socket;
+
+// //     // Emit online users to all clients
+// //     io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+// //     socket.on("disconnect", () => {
+// //         console.log("User disconnected:", userId);
+// //         delete userSocketMap[userId];
+// //         io.emit("getOnlineUsers", Object.keys(userSocketMap));
+// //     });
+// // });
+
+// // // Middleware setup
+// // app.use(express.json({ limit: "4mb" }));
+// // app.use(cors());
+
+// // // Routes
+// // app.use("/api/status", (req, res) => res.send("Server is live "));
+// // app.use("/api/auth", userRouter);
+// // app.use("/api/messages", messageRouter);
+
+
+
+// // // Connect to DB and start server
+// // await connectDB();
+
+// // const PORT = process.env.PORT || 5000;
+// // server.listen(PORT, () =>
+// //     console.log(`Server is running on http://localhost:${PORT}`)
+// // );
+// // console.log("ENV CHECK:", process.env.CLOUDINARY_CLOUD_NAME);
+
 // import express from "express";
 // import "dotenv/config";
 // import cors from "cors";
@@ -7,54 +65,52 @@
 // import messageRouter from "./routes/messageRoutes.js";
 // import { Server } from "socket.io";
 
-// // Create Express app and HTTP server
 // const app = express();
 // const server = http.createServer(app);
 
-// // Initialize Socket.io server
 // export const io = new Server(server, {
-//     cors: { origin: "*" }
+//   cors: {
+//     origin: process.env.CLIENT_URL,
+//     methods: ["GET", "POST"]
+//   }
 // });
 
-// // Store online users { userId: socket }
 // export const userSocketMap = {};
 
-// // Socket.io connection handler
 // io.on("connection", (socket) => {
-//     const userId = socket.handshake.query.userId;
-//     console.log("User connected:", userId);
+//   const userId = socket.handshake.query.userId;
+//   if (!userId) return;
 
-//     if (userId) userSocketMap[userId] = socket;
+//   console.log("User connected:", userId);
+//   userSocketMap[userId] = socket;
 
-//     // Emit online users to all clients
+//   io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+//   socket.on("disconnect", () => {
+//     console.log("User disconnected:", userId);
+//     delete userSocketMap[userId];
 //     io.emit("getOnlineUsers", Object.keys(userSocketMap));
-
-//     socket.on("disconnect", () => {
-//         console.log("User disconnected:", userId);
-//         delete userSocketMap[userId];
-//         io.emit("getOnlineUsers", Object.keys(userSocketMap));
-//     });
+//   });
 // });
 
-// // Middleware setup
 // app.use(express.json({ limit: "4mb" }));
-// app.use(cors());
 
-// // Routes
-// app.use("/api/status", (req, res) => res.send("Server is live "));
+// app.use(cors({
+//   origin: process.env.CLIENT_URL,
+//   credentials: true
+// }));
+
+// app.use("/api/status", (req, res) => res.send("Server is live"));
 // app.use("/api/auth", userRouter);
 // app.use("/api/messages", messageRouter);
 
-
-
-// // Connect to DB and start server
 // await connectDB();
 
 // const PORT = process.env.PORT || 5000;
-// server.listen(PORT, () =>
-//     console.log(`Server is running on http://localhost:${PORT}`)
-// );
-// console.log("ENV CHECK:", process.env.CLOUDINARY_CLOUD_NAME);
+
+// server.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
 
 import express from "express";
 import "dotenv/config";
@@ -68,22 +124,26 @@ import { Server } from "socket.io";
 const app = express();
 const server = http.createServer(app);
 
+// ================= SOCKET.IO =================
 export const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: "*", // ✅ allow all (fix for Vercel dynamic URL)
     methods: ["GET", "POST"]
   }
 });
 
+// Store online users
 export const userSocketMap = {};
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
+
   if (!userId) return;
 
   console.log("User connected:", userId);
   userSocketMap[userId] = socket;
 
+  // Send online users
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("disconnect", () => {
@@ -93,17 +153,27 @@ io.on("connection", (socket) => {
   });
 });
 
+// ================= MIDDLEWARE =================
 app.use(express.json({ limit: "4mb" }));
 
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: true,        // ✅ FIXED (allow all origins)
   credentials: true
 }));
 
-app.use("/api/status", (req, res) => res.send("Server is live"));
+// ================= ROUTES =================
+app.get("/", (req, res) => {
+  res.send("API is running...");
+});
+
+app.get("/api/status", (req, res) => {
+  res.send("Server is live");
+});
+
 app.use("/api/auth", userRouter);
 app.use("/api/messages", messageRouter);
 
+// ================= START SERVER =================
 await connectDB();
 
 const PORT = process.env.PORT || 5000;
