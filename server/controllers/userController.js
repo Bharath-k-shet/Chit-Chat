@@ -3,40 +3,36 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
 
-// SIGNUP CONTROLLER
+
+// ================= SIGNUP =================
 export const signup = async (req, res) => {
     const { fullName, email, password, bio } = req.body;
 
     try {
-        // Check for missing fields
         if (!fullName || !email || !password || !bio) {
             return res.json({ success: false, message: "Missing details" });
         }
 
-        // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.json({ success: false, message: "Account already exists" });
         }
 
-        // Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create the user
         const newUser = await User.create({
             fullName,
             email,
-            password: hashedPassword, // only hashed password is stored
+            password: hashedPassword,
             bio
         });
 
-        // Generate JWT token
         const token = generateToken(newUser._id);
 
         res.json({
             success: true,
-            userData: newUser,
+            user: newUser,   // ✅ FIXED
             token,
             message: "Account created successfully"
         });
@@ -49,34 +45,30 @@ export const signup = async (req, res) => {
 
 
 
-// LOGIN CONTROLLER
+// ================= LOGIN =================
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body || {};
 
-        // Validate input
         if (!email || !password) {
             return res.json({ success: false, message: "Missing email or password" });
         }
 
-        // Find user
         const userData = await User.findOne({ email });
         if (!userData) {
             return res.json({ success: false, message: "User not found" });
         }
 
-        // Compare password
         const isPasswordCorrect = await bcrypt.compare(password, userData.password);
         if (!isPasswordCorrect) {
             return res.json({ success: false, message: "Invalid credentials" });
         }
 
-        // Generate token
         const token = generateToken(userData._id);
 
         res.json({
             success: true,
-            userData,
+            user: userData,   // ✅ FIXED
             token,
             message: "Login successful"
         });
@@ -88,24 +80,29 @@ export const login = async (req, res) => {
 };
 
 
-// AUTH CHECK CONTROLLER
+
+// ================= CHECK AUTH =================
 export const checkAuth = (req, res) => {
-    res.json({ success: true, user: req.user });
+    res.json({
+        success: true,
+        user: req.user   // ✅ already correct
+    });
 };
 
 
-//  UPDATE PROFILE CONTROLLER
+
+// ================= UPDATE PROFILE =================
 export const updateProfile = async (req, res) => {
     try {
         const { profilePic, bio, fullName } = req.body;
         const userId = req.user._id;
-        let updatedUser;
 
         if (!fullName || !bio) {
             return res.json({ success: false, message: "Full name and bio are required" });
         }
 
-        // If profile picture is not updated
+        let updatedUser;
+
         if (!profilePic) {
             updatedUser = await User.findByIdAndUpdate(
                 userId,
@@ -113,7 +110,6 @@ export const updateProfile = async (req, res) => {
                 { new: true }
             );
         } else {
-            // Upload new image to cloudinary
             const upload = await cloudinary.uploader.upload(profilePic);
 
             updatedUser = await User.findByIdAndUpdate(
@@ -127,7 +123,10 @@ export const updateProfile = async (req, res) => {
             );
         }
 
-        res.json({ success: true, user: updatedUser });
+        res.json({
+            success: true,
+            user: updatedUser   // ✅ consistent naming
+        });
 
     } catch (error) {
         console.error("Update profile error:", error.message);

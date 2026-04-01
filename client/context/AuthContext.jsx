@@ -1,7 +1,8 @@
 import { createContext, useEffect, useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
+import { useNavigate } from "react-router-dom";   // ✅ ADDED
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.baseURL = backendUrl;
@@ -9,11 +10,14 @@ axios.defaults.baseURL = backendUrl;
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+    const navigate = useNavigate();   // ✅ ADDED
+
     const [token, setToken] = useState(localStorage.getItem("token"));
     const [authUser, setAuthUser] = useState(null);
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [socket, setSocket] = useState(null);
 
+    // ================= CHECK AUTH =================
     const checkAuth = async () => {
         try {
             const { data } = await axios.get("/api/auth/check");
@@ -26,16 +30,26 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // ================= LOGIN / SIGNUP =================
     const login = async (state, credentials) => {
         try {
             const { data } = await axios.post(`/api/auth/${state}`, credentials);
+
             if (data.success) {
-                setAuthUser(data.userData);
-                connectSocket(data.userData);
-                axios.defaults.headers.common["token"] = data.token;
+                // ✅ FIXED (userData → user)
+                setAuthUser(data.user);
+                connectSocket(data.user);
+
+                // ✅ FIXED HEADER (Bearer token)
+                axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
+
                 setToken(data.token);
                 localStorage.setItem("token", data.token);
+
                 toast.success(data.message);
+
+                // ✅ ADDED NAVIGATION
+                navigate("/");   // change to "/chat" if needed
             } else {
                 toast.error(data.message);
             }
@@ -44,16 +58,19 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // ================= LOGOUT =================
     const logout = async () => {
         localStorage.removeItem("token");
         setToken(null);
         setAuthUser(null);
         setOnlineUsers([]);
-        axios.defaults.headers.common["token"] = null;
+        axios.defaults.headers.common["Authorization"] = null;
         toast.success("Logged out successfully");
         socket?.disconnect();
+        navigate("/login");   // ✅ optional redirect after logout
     };
 
+    // ================= UPDATE PROFILE =================
     const updateProfile = async (body) => {
         try {
             const { data } = await axios.put(`/api/auth/update-profile`, body);
@@ -66,13 +83,16 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // ================= SOCKET CONNECTION =================
     const connectSocket = (userData) => {
         if (!userData || socket?.connected) return;
+
         const newSocket = io(backendUrl, {
             query: {
                 userId: userData._id,
             }
         });
+
         newSocket.connect();
         setSocket(newSocket);
 
@@ -81,14 +101,15 @@ export const AuthProvider = ({ children }) => {
         });
     };
 
+    // ================= INITIAL LOAD =================
     useEffect(() => {
         if (token) {
-            axios.defaults.headers.common["token"] = token;
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         }
         checkAuth();
     }, []);
 
-    // These lines must be inside the function
+    // ================= CONTEXT VALUE =================
     const value = {
         axios,
         authUser,
