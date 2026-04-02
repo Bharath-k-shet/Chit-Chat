@@ -13,6 +13,35 @@ Users can register, login, send messages, share images, and see online users ins
 
 ---
 
+## 📸 Screenshots
+
+### 🏠 Login & Signup Interface
+
+<p align="center">
+  <img src="./Screenshot 2026-04-02 121745.png" width="45%"/>
+  <img src="./Screenshot 2026-04-02 121754.png" width="45%"/>
+</p>
+
+---
+
+### 💬 Chat & Messaging UI
+
+<p align="center">
+  <img src="./Screenshot 2026-04-02 121836.png" width="45%"/>
+  <img src="./Screenshot 2026-04-02 121956.png" width="45%"/>
+</p>
+
+---
+
+### 📱 Additional Views
+
+<p align="center">
+  <img src="./Screenshot 2026-04-02 122047.png" width="45%"/>
+  <img src="./Screenshot 2026-04-02 122103.png" width="45%"/>
+</p>
+
+---
+
 ## ✨ Features
 
 ### 🔐 Authentication
@@ -59,7 +88,7 @@ Users can register, login, send messages, share images, and see online users ins
 
 ## 🛠️ Tech Stack
 
-### Frontend
+### 🌐 Frontend
 
 * React.js
 * Tailwind CSS
@@ -69,7 +98,7 @@ Users can register, login, send messages, share images, and see online users ins
 * Framer Motion
 * Emoji Picker
 
-### Backend
+### ⚙️ Backend
 
 * Node.js
 * Express.js
@@ -78,30 +107,33 @@ Users can register, login, send messages, share images, and see online users ins
 * Socket.IO
 * Cloudinary
 
-### Deployment
+### ☁️ Deployment
 
 * Frontend: Vercel
 * Backend: Render
 
 ---
 
-## 📂 Project Structure
+## 📊 GitHub Analytics
 
-```bash
-Chat-App/
-│
-├── client/        # React frontend
-│   ├── src/
-│   └── ...
-│
-├── server/        # Node.js backend
-│   ├── routes/
-│   ├── controllers/
-│   ├── models/
-│   └── ...
-│
-└── README.md
-```
+<p align="center">
+  <img src="https://github-readme-stats-sigma-five.vercel.app/api?username=Bharath-k-shet&show_icons=true&theme=tokyonight&hide_border=true&count_private=true" height="150"/>
+  <img src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=Bharath-k-shet&layout=compact&theme=tokyonight&hide_border=true" height="150"/>
+</p>
+
+---
+
+## 🔥 Streak Stats
+
+<p align="center">
+  <img src="https://streak-stats.demolab.com?user=Bharath-k-shet&theme=tokyonight&hide_border=true"/>
+</p>
+
+---
+
+## 📈 Contribution Graph
+
+![Activity Graph](https://github-readme-activity-graph.vercel.app/graph?username=Bharath-k-shet\&theme=tokyo-night)
 
 ---
 
@@ -110,7 +142,7 @@ Chat-App/
 ### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
+git clone https://github.com/Bharath-k-shet/your-repo-name.git
 cd your-repo-name
 ```
 
@@ -132,7 +164,7 @@ JWT_SECRET=your_secret
 CLOUDINARY_CLOUD_NAME=your_cloud
 CLOUDINARY_API_KEY=your_key
 CLOUDINARY_API_SECRET=your_secret
-CLIENT_URL=your link
+CLIENT_URL=your_link
 ```
 
 Run backend:
@@ -153,7 +185,7 @@ npm install
 Create `.env`:
 
 ```env
-VITE_BACKEND_URL=your link
+VITE_BACKEND_URL=your_link
 ```
 
 Run frontend:
@@ -204,10 +236,9 @@ npm run dev
 **Bharath K Shet**
 
 * GitHub: https://github.com/Bharath-k-shet
-* Project: MERN Real-Time Chat App
 
 ---
 
 ## ⭐ If you like this project
 
-Give it a ⭐ on GitHub and share with others!
+Give it a ⭐ on GitHub and share with others! 🚀
